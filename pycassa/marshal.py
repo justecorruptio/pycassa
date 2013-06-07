@@ -30,6 +30,11 @@ _BASIC_TYPES = ('BytesType', 'LongType', 'IntegerType', 'UTF8Type',
                 'DateType', 'BooleanType', 'UUIDType', 'Int32Type',
                 'DecimalType')
 
+_STRING_TYPES = ('BytesType', 'UTF8Type', 'AsciiType')
+
+def is_string_type(typestr):
+    return typestr in _STRING_TYPES
+
 def extract_type_name(typestr):
     if typestr is None:
         return 'BytesType'

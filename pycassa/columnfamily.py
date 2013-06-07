@@ -451,15 +451,15 @@ class ColumnFamily(object):
                             (b, d_type))
 
     def _pack_value(self, value, col_name):
-        if value is None:
-            return
-
         if not self.autopack_values:
             if not isinstance(value, basestring):
                 raise TypeError("A str or unicode column value was expected for " +
                                 "column '%s', but %s was received instead (%s)"
                                 % (str(col_name), value.__class__.__name__, str(value)))
             return value
+
+        if value is None:
+            return ''
 
         packed_col_name = self._pack_name(col_name, False)
         packer = self._column_validators.packers.get(packed_col_name, self._default_value_packer)
@@ -476,8 +476,10 @@ class ColumnFamily(object):
         unpacker = self._column_validators.unpackers.get(col_name, self._default_value_unpacker)
         try:
             return unpacker(value)
-        except struct.error:
+        except (struct.error, ValueError), e:
             d_type = self.column_validators.get(col_name, self.default_validation_class)
+            if value == '' and not marshal.is_string_type(d_type):
+                return None
             raise TypeError("%s cannot be converted to a type matching %s" %
                             (value, d_type))
 
